@@ -17,6 +17,9 @@ var server = http.createServer((req, res) => {
     // Get the query string as object
     var queryObject = parsedUrl.query;
 
+    // Get headers
+    var headers = req.headers;
+
     // Send the response
     res.end("Hello World");
 
@@ -24,7 +27,9 @@ var server = http.createServer((req, res) => {
     console.log(
         `Request revieved on path ${trimmedPath} , with method ${method}`
     );
-    console.log("Query object " + toString(queryObject));
+    console.log("Query object ", queryObject);
+
+    console.log("Headers", headers);
 });
 
 // Start server on port 3000
