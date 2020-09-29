@@ -1,7 +1,8 @@
+const { write } = require("fs");
 // Dependencies
 const http = require("http");
 const url = require("url");
-
+const StringDecoder = require("string_decoder").StringDecoder;
 // Create server
 var server = http.createServer((req, res) => {
     // Get the url and parse it, true  value to parse the query string
@@ -20,16 +21,29 @@ var server = http.createServer((req, res) => {
     // Get headers
     var headers = req.headers;
 
-    // Send the response
-    res.end("Hello World");
+    // Get payload, if any
+    var decoder = new StringDecoder("utf-8");
+    var buffer = "";
+    req.on("data", (data) => {
+        buffer += decoder.write(data);
+    });
 
-    // Log the request path
-    console.log(
-        `Request revieved on path ${trimmedPath} , with method ${method}`
-    );
-    console.log("Query object ", queryObject);
+    req.on("end", (data) => {
+        buffer += decoder.end();
 
-    console.log("Headers", headers);
+        // Send the response
+        res.end("Hello World");
+
+        // Log the request path
+        console.log(
+            `Request revieved on path ${trimmedPath} , with method ${method}`
+        );
+        console.log("Query object ", queryObject);
+
+        console.log("Headers", headers);
+
+        console.log("Payload ", buffer);
+    });
 });
 
 // Start server on port 3000
