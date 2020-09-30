@@ -50,6 +50,8 @@ var server = http.createServer((req, res) => {
         chosenHandler(data, (statusCode, payload) => {
             statusCode = typeof statusCode === "number" ? statusCode : 200;
             payload = payload ? JSON.stringify(payload) : "{}";
+            //Set header to identify json response
+            res.setHeader("Content-Type", "application/json");
             //Set status code
             res.writeHead(statusCode);
             // Send the response
