@@ -3,6 +3,7 @@ const { write } = require("fs");
 const http = require("http");
 const url = require("url");
 const StringDecoder = require("string_decoder").StringDecoder;
+const config = require("./config");
 // Create server
 var server = http.createServer((req, res) => {
     // Get the url and parse it, true  value to parse the query string
@@ -62,8 +63,10 @@ var server = http.createServer((req, res) => {
 });
 
 // Start server on port 3000
-server.listen(3000, () => {
-    console.log("Server running on port 3000");
+server.listen(config.port, () => {
+    console.log(
+        `Server running in ${config.envName} mode,  on port ${config.port}`
+    );
 });
 
 var handler = {};
