@@ -24,25 +24,38 @@ var server = http.createServer((req, res) => {
     // Get payload, if any
     var decoder = new StringDecoder("utf-8");
     var buffer = "";
+
+    //Add data to buffer
     req.on("data", (data) => {
         buffer += decoder.write(data);
     });
 
-    req.on("end", (data) => {
+    //End the buffer and finish the body
+    req.on("end", () => {
         buffer += decoder.end();
 
-        // Send the response
-        res.end("Hello World");
+        //payload sent to handler
+        const data = {
+            trimmedPath,
+            method,
+            queryObject,
+            headers,
+            payload: buffer,
+        };
 
-        // Log the request path
-        console.log(
-            `Request revieved on path ${trimmedPath} , with method ${method}`
-        );
-        console.log("Query object ", queryObject);
+        chosenHandler = handler[trimmedPath] ?
+            handler[trimmedPath] :
+            handler.notFound;
 
-        console.log("Headers", headers);
-
-        console.log("Payload ", buffer);
+        chosenHandler(data, (statusCode, payload) => {
+            statusCode = typeof statusCode === "number" ? statusCode : 200;
+            payload = payload ? JSON.stringify(payload) : "{}";
+            //Set status code
+            res.writeHead(statusCode);
+            // Send the response
+            res.end(payload);
+            console.log(`Returning payload :  ${payload}`);
+        });
     });
 });
 
@@ -50,3 +63,17 @@ var server = http.createServer((req, res) => {
 server.listen(3000, () => {
     console.log("Server running on port 3000");
 });
+
+var handler = {};
+
+handler.sample = (data, callback) => {
+    callback(406, { name: "Thiago" });
+};
+
+handler.notFound = (data, callback) => {
+    callback(404);
+};
+
+const router = {
+    sample: handler.sample,
+};
