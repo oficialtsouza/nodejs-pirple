@@ -1,11 +1,40 @@
-const { write } = require("fs");
 // Dependencies
 const http = require("http");
+const https = require("https");
 const url = require("url");
 const StringDecoder = require("string_decoder").StringDecoder;
 const config = require("./config");
-// Create server
-var server = http.createServer((req, res) => {
+const fs = require("fs");
+const data = require("./lib/data");
+// Instantiate HTTP server
+var httpServer = http.createServer((req, res) => {
+    unifiedServer(req, res);
+});
+
+// Start http server on port 3000
+httpServer.listen(config.httpPort, () => {
+    console.log(
+        `Server running in ${config.envName} mode,  on port ${config.httpPort}`
+    );
+});
+
+const httpsServerOptions = {
+    key: fs.readFileSync("./https/private.key"),
+    cert: fs.readFileSync("./https/certificate.crt"),
+};
+// Instantiate HTTPS server
+var httpsServer = https.createServer(httpsServerOptions, (req, res) => {
+    unifiedServer(req, res);
+});
+
+// Start https server on port 3000
+httpsServer.listen(config.httpsPort, () => {
+    console.log(
+        `Server running in ${config.envName} mode,  on port ${config.httpsPort}`
+    );
+});
+
+const unifiedServer = (req, res) => {
     // Get the url and parse it, true  value to parse the query string
     var parsedUrl = url.parse(req.url, true);
 
@@ -60,25 +89,16 @@ var server = http.createServer((req, res) => {
             console.log(`Returning payload :  ${payload}`);
         });
     });
-});
-
-// Start server on port 3000
-server.listen(config.port, () => {
-    console.log(
-        `Server running in ${config.envName} mode,  on port ${config.port}`
-    );
-});
+};
 
 var handler = {};
 
-handler.sample = (data, callback) => {
-    callback(406, { name: "Thiago" });
+handler.ping = (data, callback) => {
+    callback(200);
 };
 
 handler.notFound = (data, callback) => {
     callback(404);
 };
 
-const router = {
-    sample: handler.sample,
-};
+const router = {};
